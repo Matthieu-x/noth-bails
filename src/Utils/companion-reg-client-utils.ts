@@ -3,31 +3,23 @@ import type { WABrowserDescription } from '../Types'
 export enum CompanionWebClientType {
 	UNKNOWN = 0,
 	CHROME = 1,
-	FIREFOX = 2,
-	IE = 3,
-	OPERA = 4,
-	SAFARI = 5,
-	EDGE = 6,
-	DESKTOP = 7,
-	IPAD = 8,
-	ANDROID_TABLET = 9,
-	OHOS = 10,
-	UWP = 11,
-	ELECTRON = 12,
-	OTHER_WEB_CLIENT = 13
+	EDGE = 2,
+	FIREFOX = 3,
+	IE = 4,
+	OPERA = 5,
+	SAFARI = 6,
+	ELECTRON = 7,
+	UWP = 8,
+	OTHER_WEB_CLIENT = 9
 }
 
-const BROWSER_TO_COMPANION_WEB_CLIENT: { [T in string]?: CompanionWebClientType } = {
+const BROWSER_TO_COMPANION_WEB_CLIENT: Record<string, CompanionWebClientType> = {
 	Chrome: CompanionWebClientType.CHROME,
+	Edge: CompanionWebClientType.EDGE,
 	Firefox: CompanionWebClientType.FIREFOX,
 	IE: CompanionWebClientType.IE,
 	Opera: CompanionWebClientType.OPERA,
-	Safari: CompanionWebClientType.SAFARI,
-	Edge: CompanionWebClientType.EDGE,
-	Desktop: CompanionWebClientType.DESKTOP,
-	iPad: CompanionWebClientType.IPAD,
-	Android: CompanionWebClientType.ANDROID_TABLET,
-	OHOS: CompanionWebClientType.OHOS
+	Safari: CompanionWebClientType.SAFARI
 }
 
 export const getCompanionWebClientType = ([os, browserName]: WABrowserDescription): CompanionWebClientType => {

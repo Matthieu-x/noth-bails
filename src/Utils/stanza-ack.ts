@@ -2,25 +2,44 @@ import type { BinaryNode } from '../WABinary'
 
 /**
  * Builds an ACK stanza for a received node.
- * Particularly useful for message, receipt and call nodes.
+ * Pure function -- no I/O, no side effects.
+ *
+ * Mirrors WhatsApp Web's ACK construction:
+ * - WAWebHandleMsgSendAck.sendAck / sendNack
+ * - WAWebCreateNackFromStanza.createNackFromStanza
  */
-export const getAckStanza = (node: BinaryNode, type?: string): BinaryNode => {
-	const attrs: BinaryNode['attrs'] = {
-		to: node.attrs.from!,
-		id: node.attrs.id!,
-		class: node.tag
-	}
-	if (type) {
-		attrs.type = type
-	}
-	if (node.attrs.participant) {
-		attrs.participant = node.attrs.participant
-	}
-	if (node.attrs.recipient) {
-		attrs.recipient = node.attrs.recipient
-	}
-	return {
+export function buildAckStanza(node: BinaryNode, errorCode?: number, meId?: string): BinaryNode {
+	const { tag, attrs } = node
+	const stanza: BinaryNode = {
 		tag: 'ack',
-		attrs
+		attrs: {
+			id: attrs.id!,
+			to: attrs.from!,
+			class: tag
+		}
 	}
+
+	if (errorCode) {
+		stanza.attrs.error = errorCode.toString()
+	}
+
+	if (attrs.participant) {
+		stanza.attrs.participant = attrs.participant
+	}
+
+	if (attrs.recipient) {
+		stanza.attrs.recipient = attrs.recipient
+	}
+
+	// WA Web always includes type when present: `n.type || DROP_ATTR`
+	if (attrs.type) {
+		stanza.attrs.type = attrs.type
+	}
+
+	// WA Web WAWebHandleMsgSendAck.sendAck/sendNack always include `from` for message-class ACKs
+	if (tag === 'message' && meId) {
+		stanza.attrs.from = meId
+	}
+
+	return stanza
 }

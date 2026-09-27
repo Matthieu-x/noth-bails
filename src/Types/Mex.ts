@@ -1,17 +1,19 @@
 export enum XWAPaths {
 	xwa2_newsletter_create = 'xwa2_newsletter_create',
-	xwa2_newsletter_update = 'xwa2_newsletter_update',
-	xwa2_newsletter_metadata = 'xwa2_newsletter_metadata',
-	xwa2_newsletter_admin_count = 'xwa2_newsletter_admin_count',
 	xwa2_newsletter_subscribers = 'xwa2_newsletter_subscribers',
+	xwa2_newsletter_view = 'xwa2_newsletter_view',
+	xwa2_newsletter_metadata = 'xwa2_newsletter',
+	xwa2_newsletter_admin_count = 'xwa2_newsletter_admin',
+	xwa2_newsletter_mute_v2 = 'xwa2_newsletter_mute_v2',
+	xwa2_newsletter_unmute_v2 = 'xwa2_newsletter_unmute_v2',
 	xwa2_newsletter_follow = 'xwa2_newsletter_follow',
 	xwa2_newsletter_unfollow = 'xwa2_newsletter_unfollow',
-	xwa2_newsletter_mute = 'xwa2_newsletter_mute',
-	xwa2_newsletter_unmute = 'xwa2_newsletter_unmute',
+	xwa2_newsletter_join_v2 = 'xwa2_newsletter_join_v2',
+	xwa2_newsletter_leave_v2 = 'xwa2_newsletter_leave_v2',
 	xwa2_newsletter_change_owner = 'xwa2_newsletter_change_owner',
 	xwa2_newsletter_demote = 'xwa2_newsletter_demote',
-	xwa2_newsletter_delete = 'xwa2_newsletter_delete',
-	xwa2_newsletter_reachout_timelock = 'xwa2_newsletter_reachout_timelock',
+	xwa2_newsletter_delete_v2 = 'xwa2_newsletter_delete_v2',
+	xwa2_fetch_account_reachout_timelock = 'xwa2_fetch_account_reachout_timelock',
 	xwa2_message_capping_info = 'xwa2_message_capping_info'
 }
 
@@ -35,6 +37,25 @@ export type NewsletterUpdate = {
 	name?: string
 	description?: string
 	picture?: string
+}
+export interface NewsletterCreateResponse {
+	id: string
+	state: { type: string }
+	thread_metadata: {
+		creation_time: string
+		description: { id: string; text: string; update_time: string }
+		handle: string | null
+		invite: string
+		name: { id: string; text: string; update_time: string }
+		picture: { direct_path: string; id: string; type: string }
+		preview: { direct_path: string; id: string; type: string }
+		subscribers_count: string
+		verification: 'VERIFIED' | 'UNVERIFIED'
+	}
+	viewer_metadata: {
+		mute: 'ON' | 'OFF'
+		role: NewsletterViewRole
+	}
 }
 export interface NewsletterCreateResponse {
 	id: string

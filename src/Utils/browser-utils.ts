@@ -1,23 +1,32 @@
-import type { WABrowserDescription } from '../Types'
+import { platform, release } from 'os'
+import { proto } from '../../WAProto/index.js'
+import type { BrowsersMap } from '../Types'
 
-const BROWSER_MAP: { [T in string]?: WABrowserDescription } = {
-	MacOS: ['Mac OS', 'Chrome', '10.15.7'],
-	Windows: ['Windows', 'Chrome', '10.0'],
-	Ubuntu: ['Ubuntu', 'Chrome', '22.04'],
-	iOS: ['iOS', 'Safari', '16.0'],
-	Android: ['Android', 'Chrome', '10.0']
+const PLATFORM_MAP = {
+	aix: 'AIX',
+	darwin: 'Mac OS',
+	win32: 'Windows',
+	android: 'Android',
+	freebsd: 'FreeBSD',
+	openbsd: 'OpenBSD',
+	sunos: 'Solaris',
+	linux: undefined,
+	haiku: undefined,
+	cygwin: undefined,
+	netbsd: undefined
 }
 
-export const Browsers = {
-	macOS: (browser: string) => ['Mac OS', browser, '10.15.7'] as WABrowserDescription,
-	windows: (browser: string) => ['Windows', browser, '10.0'] as WABrowserDescription,
-	ubuntu: (browser: string) => ['Ubuntu', browser, '22.04'] as WABrowserDescription,
-	iOS: (browser: string) => ['iOS', browser, '16.0'] as WABrowserDescription,
-	android: (browser: string) => ['Android', browser, '10.0'] as WABrowserDescription,
-	appropriate: () => {
-		const platform = process.platform
-		if (platform === 'darwin') return Browsers.macOS('Chrome')
-		if (platform === 'win32') return Browsers.windows('Chrome')
-		return Browsers.ubuntu('Chrome')
-	}
+export const Browsers: BrowsersMap = {
+	ubuntu: browser => ['Ubuntu', browser, '22.04.4'],
+	macOS: browser => ['Mac OS', browser, '14.4.1'],
+	baileys: browser => ['Baileys', browser, '6.5.0'],
+	windows: browser => ['Windows', browser, '10.0.22631'],
+	android: browser => [browser, 'Android', ''],
+	/** The appropriate browser based on your OS & release */
+	appropriate: browser => [PLATFORM_MAP[platform()] || 'Ubuntu', browser, release()]
+}
+
+export const getPlatformId = (browser: string) => {
+	const platformType = proto.DeviceProps.PlatformType[browser.toUpperCase() as any]
+	return platformType ? platformType.toString() : '1' //chrome
 }
