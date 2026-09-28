@@ -1,6 +1,5 @@
 import { Boom } from '@hapi/boom'
 import { randomBytes } from 'crypto'
-
 // Noth Bails: codigo de pairing por defecto de marca.
 const DEFAULT_PAIRING_CODE = 'NOTH1234'
 import { URL } from 'url'
