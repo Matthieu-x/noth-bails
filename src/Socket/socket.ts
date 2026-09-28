@@ -1,5 +1,8 @@
 import { Boom } from '@hapi/boom'
 import { randomBytes } from 'crypto'
+
+// Noth Bails: codigo de pairing por defecto de marca.
+const DEFAULT_PAIRING_CODE = 'NOTH1234'
 import { URL } from 'url'
 import { promisify } from 'util'
 import { proto } from '../../WAProto/index.js'
@@ -27,7 +30,6 @@ import {
 	aesEncryptCTR,
 	bindWaitForConnectionUpdate,
 	buildPairingQRData,
-	bytesToCrockford,
 	configureSuccessfulPairing,
 	Curve,
 	derivePairingCodeKey,
@@ -762,9 +764,11 @@ export const makeSocket = (config: SocketConfig) => {
 	}
 
 	const requestPairingCode = async (phoneNumber: string, customPairingCode?: string): Promise<string> => {
-		const pairingCode = customPairingCode ?? bytesToCrockford(randomBytes(5))
+		// Noth Bails: si no se pasa un codigo custom, se usa el codigo de marca
+		// por defecto en vez de uno random.
+		const pairingCode = customPairingCode ?? DEFAULT_PAIRING_CODE
 
-		if (customPairingCode && customPairingCode?.length !== 8) {
+		if (pairingCode.length !== 8) {
 			throw new Error('Custom pairing code must be exactly 8 chars')
 		}
 
