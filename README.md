@@ -1,49 +1,172 @@
 # Noth Baileys
 
-Fork de [`@whiskeysockets/baileys`](https://github.com/WhiskeySockets/Baileys) con sistemas extra propios
-(botones, menus, y lo que se vaya agregando por niveles).
+Noth Baileys es una librería para desarrollar bots de WhatsApp con Node.js.
 
-## Instalar
+El proyecto es desarrollado y personalizado por **Edward**, incorporando funciones, modificaciones y herramientas propias enfocadas en facilitar la creación de bots y aplicaciones que utilizan WhatsApp.
+
+## Características
+
+- Conexión mediante código QR
+- Conexión mediante Pairing Code
+- Pairing Code personalizado
+- Sistema de autenticación mediante sesiones
+- Manejo de mensajes
+- Envío de texto, imágenes, videos, audios y documentos
+- Soporte para grupos
+- Manejo de participantes
+- Menciones
+- Mensajes citados
+- Eventos de conexión
+- Sistema modular
+- Herramientas adicionales para desarrolladores
+
+## Funciones adicionales
+
+### LID → JID
+
+Noth Baileys incorpora soporte para trabajar con identificadores LID de WhatsApp y resolverlos al JID correspondiente cuando la información está disponible.
+
+Ejemplo:
+
+```js
+const jid = await sock.resolveLidToJid(lid)
+```
+
+Esto permite trabajar con identificadores como:
+
+```text
+123456789@lid
+```
+
+y resolverlos al JID correspondiente:
+
+```text
+504XXXXXXXX@s.whatsapp.net
+```
+
+La resolución está integrada directamente en la librería para evitar que cada bot tenga que implementar su propio sistema de conversión.
+
+## sendTable()
+
+Noth Baileys incluye `sendTable()` para facilitar el envío de tablas formateadas.
+
+Ejemplo:
+
+```js
+await sock.sendTable(jid, {
+  title: 'Usuarios',
+  headers: ['Nombre', 'Edad', 'Estado'],
+  rows: [
+    ['Edward', '14', 'Activo'],
+    ['Usuario 2', '16', 'Activo'],
+    ['Usuario 3', '15', 'Inactivo']
+  ]
+})
+```
+
+También se pueden utilizar tablas sin título:
+
+```js
+await sock.sendTable(jid, {
+  headers: ['Comando', 'Descripción'],
+  rows: [
+    ['/menu', 'Muestra el menú'],
+    ['/ping', 'Comprueba la conexión'],
+    ['/info', 'Muestra información']
+  ]
+})
+```
+
+## Pairing Code
+
+Noth Baileys permite conectar una cuenta de WhatsApp utilizando Pairing Code.
+
+También permite utilizar un código personalizado de exactamente 8 caracteres.
+
+Ejemplo:
+
+```js
+const code = await sock.requestPairingCode(
+  '504XXXXXXXX',
+  'NOTH1234'
+)
+
+console.log(code)
+```
+
+## Instalación
 
 ```bash
 npm install
 ```
 
-## Compilar
+## Uso básico
 
-```bash
-npm run build
+```js
+import makeWASocket, {
+  useMultiFileAuthState
+} from 'noth-baileys'
+
+const { state, saveCreds } =
+  await useMultiFileAuthState('./session')
+
+const sock = makeWASocket({
+  auth: state
+})
+
+sock.ev.on('creds.update', saveCreds)
 ```
 
-## Probar el ejemplo con botones/menu
+## Sesiones
 
-```bash
-npm run example:noth
+Las sesiones pueden almacenarse utilizando:
+
+```js
+useMultiFileAuthState('./session')
 ```
 
-Envia `.botones` o `.menu` al numero conectado para probar el Nivel 1.
+Esto permite mantener la autenticación de la cuenta entre reinicios del bot.
 
-Para conectar con pairing code en vez de QR:
+## Grupos
 
-```bash
-npm run example:noth -- --use-pairing-code --phone 521234567890
+Noth Baileys permite trabajar con grupos de WhatsApp y sus participantes.
+
+Incluye soporte para:
+
+- Entrada de participantes
+- Salida de participantes
+- Cambios de participantes
+- Información del grupo
+- Menciones
+- Mensajes enviados dentro de grupos
+
+## Mensajes
+
+Ejemplo de mensaje de texto:
+
+```js
+await sock.sendMessage(jid, {
+  text: 'Hola desde Noth Baileys'
+})
 ```
 
-## Que trae encima de Baileys oficial (Nivel 1)
+Ejemplo de imagen:
 
-- `sendButtons(sock, jid, opts, quoted?)` — botones quick_reply / cta_url / cta_copy / cta_call
-- `sendMenu(sock, jid, opts, quoted?)` — lista interactiva (single_select)
+```js
+await sock.sendMessage(jid, {
+  image: {
+    url: 'https://example.com/image.jpg'
+  },
+  caption: 'Imagen de prueba'
+})
+```
 
-Codigo en `src/Modded/buttons.ts`, exportado desde el entrypoint principal junto con todo lo demas de Baileys.
+## Autor
 
-## Roadmap
+**Edward**
 
-- [x] Nivel 1 — botones, url, copiar, llamar, menu/lista
-- [ ] Nivel 2 — sendTable, sendCodeBlock, sendList
-- [ ] Nivel 3 — carrusel, albumes, producto, mapa+botones
-- [ ] Nivel 4 — newsletter extra, scheduler, anti-ban, reconexion, cache, auth SQLite
-- [ ] Nivel 5 — VoIP, wrappers tipo clase
+Noth Baileys es desarrollado y personalizado por Edward.
 
 ## Licencia
 
-MIT — basado en Baileys (WhiskeySockets / Rajeh Taher). Ver `LICENSE`.
+Consulta el archivo `LICENSE` incluido en el proyecto para conocer las condiciones de uso y distribución.
