@@ -36,6 +36,7 @@ export const formatTable = ({ title, headers, rows, footer }: SendTableOptions):
 
 	if (title) lines.push(`*${title}*`)
 
+	lines.push('```')
 	lines.push(top, formatRow(headerCells), separator)
 
 	if (normalizedRows.length) {
@@ -43,6 +44,7 @@ export const formatTable = ({ title, headers, rows, footer }: SendTableOptions):
 	}
 
 	lines.push(bottom)
+	lines.push('```')
 
 	if (footer) lines.push(footer)
 
