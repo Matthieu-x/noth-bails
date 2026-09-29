@@ -38,6 +38,7 @@ import {
 import { getUrlInfo } from '../Utils/link-preview'
 import { makeKeyedMutex, makeMutex } from '../Utils/make-mutex'
 import { getMessageReportingToken, shouldIncludeReportingToken } from '../Utils/reporting-utils'
+import { formatTable, type SendTableOptions } from '../Modded/table'
 import {
 	buildMergedTcTokenIndexWrite,
 	isTcTokenExpired,
@@ -1325,95 +1326,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 			return message
 		},
-		sendMessage: async (jid: string, content: AnyMessageContent, options: MiscMessageGenerationOptions = {}) => {
-			const userJid = authState.creds.me!.id
-			if (
-				typeof content === 'object' &&
-				'disappearingMessagesInChat' in content &&
-				typeof content['disappearingMessagesInChat'] !== 'undefined' &&
-				isJidGroup(jid)
-			) {
-				const { disappearingMessagesInChat } = content
-				const value =
-					typeof disappearingMessagesInChat === 'boolean'
-						? disappearingMessagesInChat
-							? WA_DEFAULT_EPHEMERAL
-							: 0
-						: disappearingMessagesInChat
-				await groupToggleEphemeral(jid, value)
-			} else {
-				const fullMsg = await generateWAMessage(jid, content, {
-					logger,
-					userJid,
-					getUrlInfo: text =>
-						getUrlInfo(text, {
-							thumbnailWidth: linkPreviewImageThumbnailWidth,
-							fetchOpts: {
-								timeout: 3_000,
-								...(httpRequestOptions || {})
-							},
-							logger,
-							uploadImage: generateHighQualityLinkPreview ? waUploadToServer : undefined
-						}),
-					//TODO: CACHE
-					getProfilePicUrl: sock.profilePictureUrl,
-					getCallLink: sock.createCallLink,
-					upload: waUploadToServer,
-					mediaCache: config.mediaCache,
-					options: config.options,
-					messageId: generateMessageIDV2(sock.user?.id),
-					...options
-				})
-				const isEventMsg = 'event' in content && !!content.event
-				const isDeleteMsg = 'delete' in content && !!content.delete
-				const isEditMsg = 'edit' in content && !!content.edit
-				const isPinMsg = 'pin' in content && !!content.pin
-				const isPollMessage = 'poll' in content && !!content.poll
-				const additionalAttributes: BinaryNodeAttributes = {}
-				const additionalNodes: BinaryNode[] = []
-				// required for delete
-				if (isDeleteMsg) {
-					// if the chat is a group, and I am not the author, then delete the message as an admin
-					if (isJidGroup(content.delete?.remoteJid as string) && !content.delete?.fromMe) {
-						additionalAttributes.edit = '8'
-					} else {
-						additionalAttributes.edit = '7'
-					}
-				} else if (isEditMsg) {
-					additionalAttributes.edit = '1'
-				} else if (isPinMsg) {
-					additionalAttributes.edit = '2'
-				} else if (isPollMessage) {
-					additionalNodes.push({
-						tag: 'meta',
-						attrs: {
-							polltype: 'creation'
-						}
-					} as BinaryNode)
-				} else if (isEventMsg) {
-					additionalNodes.push({
-						tag: 'meta',
-						attrs: {
-							event_type: 'creation'
-						}
-					} as BinaryNode)
-				}
-
-				await relayMessage(jid, fullMsg.message!, {
-					messageId: fullMsg.key.id!,
-					useCachedGroupMetadata: options.useCachedGroupMetadata,
-					additionalAttributes,
-					statusJidList: options.statusJidList,
-					additionalNodes
-				})
-				if (config.emitOwnEvents) {
-					process.nextTick(async () => {
-						await messageMutex.mutex(() => upsertMessage(fullMsg, 'append'))
-					})
-				}
-
-				return fullMsg
-			}
-		}
+		sendMessage,
+		resolveLidToJid,
+		sendTable
 	}
 }
