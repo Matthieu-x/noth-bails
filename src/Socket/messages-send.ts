@@ -99,6 +99,16 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
 
+	const resolveLidToJid = async (lid: string): Promise<string | null> => {
+		const normalizedLid = jidNormalizedUser(lid)
+
+		if (!isLidUser(normalizedLid) && !isHostedLidUser(normalizedLid)) {
+			return null
+		}
+
+		return signalRepository.lidMapping.getPNForLID(normalizedLid)
+	}
+
 	/**
 	 * Set of tctoken storage JIDs with a fire-and-forget `issuePrivacyTokens` IQ in flight.
 	 * Prevents duplicate IQs from rapid back-to-back sends before `senderTimestamp` persists.

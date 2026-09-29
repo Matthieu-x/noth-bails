@@ -24,11 +24,11 @@ export const formatTable = ({ title, headers, rows, footer }: SendTableOptions):
 	const headerCells = headers.map(cellToString)
 
 	const widths = headers.map((header, index) =>
-		Math.max(header.length, ...normalizedRows.map(row => row[index].length))
+		Math.max(header.length, ...normalizedRows.map(row => (row[index] ?? '').length))
 	)
 
 	const formatRow = (row: string[]) =>
-		`│ ${row.map((cell, index) => cell.padEnd(widths[index])).join(' │ ')} │`
+		`│ ${row.map((cell, index) => cell.padEnd(widths[index] ?? 0)).join(' │ ')} │`
 
 	const separator = `├─${widths.map(width => '─'.repeat(width)).join('─┼─')}─┤`
 	const top = `┌─${widths.map(width => '─'.repeat(width)).join('─┬─')}─┐`
